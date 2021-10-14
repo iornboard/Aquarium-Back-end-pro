@@ -1,7 +1,6 @@
 package com.aquarium.aquarium.domain.dto._Ect
 
 
-
 data class FileDto(
 
     var filename : String? = null,

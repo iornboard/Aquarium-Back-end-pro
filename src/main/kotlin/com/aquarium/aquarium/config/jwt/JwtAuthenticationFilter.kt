@@ -61,7 +61,8 @@ class JwtAuthenticationFilter( authenticationManager : AuthenticationManager ) :
 
         //응답 처리 (in header)
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken)  // 추후에 " "으로 분리 시킬 것임 공백이 필요
-        response.addHeader("redirectUrl", principalDetailis.getUserNickname())  // 추후에 " "으로 분리 시킬 것임 공백이 필요
+        val redirectUrl = Base64.getEncoder().encodeToString(principalDetailis.getUserNickname().toByteArray());
+        response.addHeader("redirectUrl", redirectUrl)  // 추후에 " "으로 분리 시킬 것임 공백이 필요
     }
 
     init {

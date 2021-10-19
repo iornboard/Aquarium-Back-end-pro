@@ -9,6 +9,7 @@ import com.aquarium.aquarium.domain.repository.User.UserRepository
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
@@ -25,21 +26,15 @@ internal class AccountController (userRepository: UserRepository) {
     @Autowired
     private val userRepository: UserRepository
 
-
     @Autowired
     private val bCryptPasswordEncoder: BCryptPasswordEncoder? = null
 
-    @GetMapping("/foo")
-    fun foo(): String {
-        return "it is a foo"
-    }
-
     @GetMapping("/auth")
-    fun auth(@RequestHeader( JwtProperties.HEADER_STRING ) jwtHeader : String): AuthDto? {
+    fun auth(@RequestHeader( JwtProperties.HEADER_STRING ) jwtHeader : String):  ResponseEntity<Any> {
 
         // 해더가 있는지 or 우리 토큰이 맟는지 -> 없으면 끝냄
         if (jwtHeader == null || !jwtHeader.startsWith(JwtProperties.TOKEN_PREFIX)) {
-            return null
+            return ResponseEntity.status(400).body("Failed to fetch information!!")
         }
 
         // 위에서 받은 토큰확인해서 username을 확인
@@ -59,8 +54,7 @@ internal class AccountController (userRepository: UserRepository) {
             responseAuth.userImgUrl = user.userImgUrl
             responseAuth.userRole = user.userRole
         }
-
-        return responseAuth
+        return ResponseEntity.ok(responseAuth)
     }
 
     @GetMapping("/auth-userpage")
@@ -70,61 +64,93 @@ internal class AccountController (userRepository: UserRepository) {
 
         val user : User? = userRepository.findByUserNickname(userNickname)
 
-        if(user == null){
-            return ResponseEntity.ok().body(null)
+        if(user != null){
+            return ResponseEntity.ok(UserDto().toUserDto(user))
 
         }else{
-            return ResponseEntity.ok(UserDto().toUserDto(user))
+            return ResponseEntity.status(400).body("Failed to fetch information!!")
         }
     }
 
 
     @PostMapping("/join")
-    fun join( @RequestBody  user : User): String? {
+    fun join( @RequestBody  user : User?) : ResponseEntity<Any?> {
 
-        user.userRole = "USER_ROLE"
-        user.username = user.userEmail
-        val rawPassword : String? = user.password
-        val encPassword = bCryptPasswordEncoder!!.encode(rawPassword)
-        user.password = encPassword
-        user.provider = "aquarium"
-        user.providerId ="aquarium"
-        userRepository.save(user)
+        if(user?.userEmail!=""&& user?.password!=""&& user?.userNickname!=""&& user?.userFullname!=""){
 
-        return "redirect:/api/signup"
+            return user?.let{
+                user.userRole = "USER_ROLE"
+                user.username = user.userEmail
+                val rawPassword : String? = user.password
+                val encPassword = bCryptPasswordEncoder!!.encode(rawPassword)
+                user.password = encPassword
+                user.provider = "aquarium"
+                user.providerId ="aquarium"
+
+                userRepository.save(user)
+
+                return ResponseEntity.status(200).build()
+            } ?: let{
+                return ResponseEntity.status(400).body("not valid information")
+            }
+
+        } else {
+            return ResponseEntity.status(400).body("not valid information")
+        }
     }
+
+
 
     @PatchMapping("/user-image")
-    fun userImgUpdate( @RequestBody responseUser : User): String? {
+    fun userImgUpdate( @RequestBody responseUser : User) : ResponseEntity<Any?> {
 
-        val targetUser : User = userRepository.getOne(responseUser.userId)
+        val targetUser : User? = userRepository.findByIdOrNull(responseUser.userId)
 
-        targetUser.userImgUrl = responseUser.userImgUrl
-        userRepository.save(targetUser)
+        return targetUser?.let{
+            targetUser.userImgUrl = responseUser.userImgUrl
+            userRepository.save(targetUser)
 
-        return "redirect:/api/signup"
+            return ResponseEntity.ok().build()
+
+        } ?: let {
+            return ResponseEntity.status(400).body("not found User!!")
+        }
+
     }
+
+
+
 
     @GetMapping("/user-info")
-    fun getUserIdToInfo( @RequestParam userId : Int ): User? {
+    fun getUserIdToInfo( @RequestParam userId : Int ): ResponseEntity<Any?> {
 
-        val targetUserInfo : User = userRepository.getOne(userId)
+        val targetUserInfo : User? = userRepository.findByIdOrNull(userId)
 
-        return targetUserInfo
+        return targetUserInfo?.let{
+            return ResponseEntity.ok(targetUserInfo)
+        } ?: let{
+            return ResponseEntity.status(400).body("not found User!!")
+        }
     }
 
+
+
+
     @GetMapping("/user-info-all")
-    fun getAllUserIdToInfo( @RequestParam userId : Int? ): Set<User?> {
+    fun getAllUserIdToInfo( @RequestParam userId : Int? ): ResponseEntity<Any?> {
 
         val targetUserInfo = userRepository.findAll()
 
         if(userId != null){
-            val requestUser = userRepository.getOne(userId)
+            val requestUser = userRepository.findByIdOrNull(userId)
 
-            return targetUserInfo.toSet() - setOf<User>(requestUser)
+            if(requestUser != null) return ResponseEntity.ok(targetUserInfo.toSet() - setOf<User>(requestUser))
+
+            else return  ResponseEntity.status(400).body("not found User!!")
+
         }
         else{
-            return targetUserInfo.toSet()
+            return ResponseEntity.ok( targetUserInfo.toSet() )
         }
     }
 

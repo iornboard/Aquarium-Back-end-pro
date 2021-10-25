@@ -18,6 +18,8 @@ data class Aquarium(
     var aqrmId : Int = 0,
 
     var aqrmTitle : String? = null,
+    var aqrmtext : String? = null,
+    var aqrmThumbnail : String? = null,
     var aqrmContentType : String? = null,
 
     var aqrmImgUrl : String? = null,
@@ -48,6 +50,8 @@ data class Aquarium(
         return AquariumDto(
             aqrmId = aqrmId,
             aqrmTitle = aqrmTitle,
+            aqrmtext = aqrmtext,
+            aqrmThumbnail = aqrmThumbnail,
             aqrmContentType = aqrmContentType,
             aqrmImgUrl = aqrmImgUrl,
             aqrmVideoUrl = aqrmVideoUrl,
@@ -67,6 +71,8 @@ data class Aquarium(
         return AquariumDto(
             aqrmId = aqrmId,
             aqrmTitle = aqrmTitle,
+            aqrmtext = aqrmtext,
+            aqrmThumbnail = aqrmThumbnail,
             aqrmContentType = aqrmContentType,
             aqrmImgUrl = aqrmImgUrl,
             aqrmVideoUrl = aqrmVideoUrl,

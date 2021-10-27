@@ -3,6 +3,7 @@ package com.aquarium.aquarium.controller.Aquarium
 import com.aquarium.aquarium.domain.dto.Aquarium.AquariumDto
 import com.aquarium.aquarium.domain.repository.Aquarium.AquariumRepository
 import com.aquarium.aquarium.domain.repository.User.UserRepository
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -58,6 +59,13 @@ class AquariumController(userRepository : UserRepository, aquariumRepository: Aq
         } ?: let {
             return ResponseEntity.status(400).build()
         }
+    }
+
+    @GetMapping("/pull-aqrm")
+    fun readPullAquarium() : ResponseEntity<Any?> {
+            aquariumRepository.findAll(Sort.by(Sort.Direction.DESC,"aqrmId")).let {
+                return ResponseEntity.ok( it.map{it?.toJoinedAquariumDto()} )
+            }
     }
 
 

@@ -32,6 +32,7 @@ data class Task (
 
         var chatRoomId : Int? = null,
         var aqrmId : Int? = null,
+        var termId : Int? = null,
         var masterId : Int? = null,
 
         @CreatedDate
@@ -76,6 +77,7 @@ data class Task (
                         taskIsAccept = taskIsAccept,
                         chatRoomId = chatRoomId,
                         aqrmId = aqrmId,
+                        termId = termId,
                         masterId =  masterId,
                         createdAt = createdAt,
                         updatedAt = updatedAt,
@@ -100,6 +102,7 @@ data class Task (
                         taskIsAccept = taskIsAccept,
                         chatRoomId = chatRoomId,
                         aqrmId = aqrmId,
+                        termId = termId,
                         masterId =  masterId,
                         createdAt = createdAt,
                         updatedAt = updatedAt,
@@ -123,6 +126,7 @@ data class Task (
                         taskIsAccept = taskInfo.taskIsAccept,
                         chatRoomId = taskInfo.chatRoomId,
                         aqrmId = taskInfo.aqrmId,
+                        termId = taskInfo.termId,
                         masterId =  taskInfo.masterId,
                         createdAt = taskInfo.createdAt,
                         updatedAt = taskInfo.updatedAt,

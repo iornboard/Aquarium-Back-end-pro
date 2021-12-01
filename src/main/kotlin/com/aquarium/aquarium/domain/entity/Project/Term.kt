@@ -48,7 +48,8 @@ data class Term (
                         termRequired = termRequired,
                         termOwnerId = termOwnerId,
                         createdAt = createdAt,
-                        agreesInfo = agrees.map{it -> UserDto().toUserDto(it)}
+                        agreesInfo = agrees.map{it -> UserDto().toUserDto(it)},
+                        agreesId =  agrees.map{it -> it.userId}
                 )
         }
 }
